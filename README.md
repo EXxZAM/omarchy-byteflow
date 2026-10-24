@@ -2,9 +2,7 @@
 
 A compact, theme-aware network speed widget for the Omarchy Quattro bar.
 
-```text
-↓ 2.4 MB/s   ↑ 180 KB/s
-```
+![ByteFlow bar widget and settings panel](preview.png)
 
 ## Features
 
@@ -31,6 +29,8 @@ omarchy plugin add https://github.com/EXxZAM/omarchy-byteflow.git --enable
 
 Click ByteFlow to open its settings.
 
+![Both, Download and Upload views](docs/images/views.png)
+
 | Setting | Default | Options |
 | --- | --- | --- |
 | View | Both | Both, Download, Upload |
@@ -45,6 +45,8 @@ the threshold, a subtle `⇅` icon remains visible; click it to open settings.
 Switching the threshold unit converts the value while preserving the same speed limit.
 Threshold units and display units are independent. Units use decimal scaling:
 1 MB/s = 1,000 KB/s = 8 Mbps.
+
+![ByteFlow collapses to a clickable icon below your threshold](docs/images/threshold.png)
 
 ## Update
 
