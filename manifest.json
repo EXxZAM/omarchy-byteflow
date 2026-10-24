@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.exxzam.byteflow",
+  "name": "ByteFlow",
+  "version": "1.0.0",
+  "author": "Mahdi Olamaei",
+  "license": "MIT",
+  "description": "Compact live network speeds with configurable views and smart visibility.",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "ByteFlow.qml" },
+  "barWidget": {
+    "displayName": "ByteFlow",
+    "category": "Network",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
