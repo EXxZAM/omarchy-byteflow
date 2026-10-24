@@ -35,6 +35,10 @@ case "${1:-check}" in
     [[ $(cat "$backup/target") == "$installed" ]] || { echo "Restore the previous preview first." >&2; exit 1; }
     files=( *.qml *.js manifest.json sample.sh LICENSE )
     printf '%s\n' "${files[@]}" >> "$backup/preview-files"
+    for old in "$installed"/*.qml "$installed"/*.js; do
+      [[ -e $old ]] || continue
+      [[ -f ${old##*/} ]] || rm -- "$old"
+    done
     cp -- "${files[@]}" "$installed/"
     echo "Preview installed from this working directory. Restore with: ./dev restore"
     omarchy restart shell

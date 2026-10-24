@@ -1,10 +1,10 @@
 import QtQuick
 import Quickshell.Io
 import qs.Commons
-import qs.Ui
+import qs.Ui as Ui
 import "Model.js" as Model
 
-BarWidget {
+Ui.BarWidget {
   id: root
   moduleName: "io.github.exxzam.byteflow"
 
@@ -20,15 +20,25 @@ BarWidget {
   property string device: ""
   readonly property var barApi: bar
   readonly property var themeFont: Style.font
-  readonly property bool opened: panel.opened
-  readonly property bool popoutSwitchClosing: panel.popoutSwitchClosing
+  readonly property var loadedPanel: panelLoader.item
+  readonly property bool opened: loadedPanel ? loadedPanel.opened === true : false
+  readonly property bool popoutSwitchClosing: loadedPanel ? loadedPanel.popoutSwitchClosing === true : false
   readonly property bool showRates: !thresholdEnabled || Model.aboveThreshold(speed, view, thresholdKB)
   readonly property real openPanelIndicatorWidth: showRates ? metrics.implicitWidth : button.opticalSize
 
-  function open() { panel.open() }
-  function close() { panel.close() }
-  function toggle() { panel.toggle() }
-  function closeForPopoutSwitch() { panel.closeForPopoutSwitch() }
+  function open() { if (loadedPanel) loadedPanel.open() }
+  function close() { if (loadedPanel) loadedPanel.close() }
+  function toggle() { if (loadedPanel) loadedPanel.toggle() }
+  function closeForPopoutSwitch() { if (loadedPanel) loadedPanel.closeForPopoutSwitch() }
+
+  function injectPanel() {
+    if (!loadedPanel) return
+    loadedPanel.bar = root.bar
+    loadedPanel.anchorItem = button
+    loadedPanel.hostWidget = root
+  }
+
+  onBarChanged: injectPanel()
 
   function configure(key, value) {
     var entry = Object.assign({}, settings)
@@ -70,14 +80,18 @@ BarWidget {
     onTriggered: if (!sampler.running) sampler.running = true
   }
 
-  ByteFlowPanel {
-    id: panel
-    bar: root.bar
-    hostWidget: root
-    anchorItem: button
+  Loader {
+    id: panelLoader
+    active: true
+    source: Qt.resolvedUrl("Panel.qml")
+    visible: false
+    onLoaded: {
+      root.injectPanel()
+      Qt.callLater(root.injectPanel)
+    }
   }
 
-  BarIconButton {
+  Ui.BarIconButton {
     id: button
     anchors.fill: parent
     bar: root.bar

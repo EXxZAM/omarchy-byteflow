@@ -29,3 +29,32 @@ The backup lives under `$XDG_STATE_HOME/byteflow/preview`, or
 To test numeric settings: edit the threshold or interval, then click a section
 heading, a blank area, another editor, or a button. Reopen the panel and verify
 the value persisted. Clicking inside the same editor should keep it focused.
+
+## Plugin contract
+
+ByteFlow follows the [Omarchy development guide](https://plugins.omarchy.org/develop.html):
+
+- `manifest.json` declares one `bar-widget` with entry point `BarWidget.qml`.
+- `BarWidget.qml` loads `Panel.qml` through a `Loader` and injects `bar`,
+  `anchorItem` and `hostWidget` after loading and when the bar changes.
+- The entry point forwards `opened`, `popoutSwitchClosing`, `open`, `close`,
+  `toggle` and `closeForPopoutSwitch` to the loaded panel.
+- The nested panel uses the same plugin ID, `manageIpc: false`, `KeyboardPanel`
+  and `PanelKeyCatcher`. Form controls retain their normal key handling.
+- The published manifest uses ByteFlow's permanent namespaced ID and contains
+  no temporary `omarchy.clonedFrom` field.
+- Runtime files contain no symlinks and run inside the existing shell process.
+
+After `./dev preview`, complete these checks from the desktop session:
+
+```sh
+omarchy plugin list --json | jq '.[] | select(.id == "io.github.exxzam.byteflow")'
+omarchy-shell shell summon io.github.exxzam.byteflow '{}'
+omarchy-shell shell hide io.github.exxzam.byteflow
+```
+
+Verify click-to-toggle, Escape, repeated open/close, Tab between panels, form
+keyboard navigation, settings persistence, and both bar orientations. Before
+release, also check disable/re-enable, shell restart and removal/reinstallation.
+These desktop checks supplement the automated tests; neither lint nor manifest
+validation confirms that the running shell has loaded the current code.
