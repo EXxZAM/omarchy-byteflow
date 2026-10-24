@@ -30,8 +30,8 @@ Panel {
 
       PanelHero {
         title: "ByteFlow"
-        meta: root.hostWidget.device || "No active route"
-        detail: "LIVE · 1s"
+        meta: root.hostWidget.device ? "Interface · " + root.hostWidget.device : "No active route"
+        detail: "LIVE · " + root.hostWidget.refreshSeconds + "s"
         foreground: root.barForeground
       }
 
@@ -70,22 +70,44 @@ Panel {
         onClicked: root.hostWidget.configure("thresholdEnabled", !checked)
       }
 
-      NumberField {
-        label: "Minimum speed · KB/s"
-        value: root.hostWidget.thresholdKB
-        from: 0
-        to: 1000000000
-        stepSize: 10
-        fieldWidth: parent.width
+      Column {
+        width: parent.width
+        spacing: Style.space(8)
         enabled: root.hostWidget.thresholdEnabled
         opacity: enabled ? 1 : 0.45
+
+        PanelSectionHeader { text: "MINIMUM SPEED"; foreground: root.barForeground }
+        ButtonGroup {
+          options: ["KB/s", "MB/s", "Kbps", "Mbps"]
+          value: root.hostWidget.thresholdUnit
+          foreground: root.barForeground
+          onChanged: function(value) { root.hostWidget.configure("thresholdUnit", value) }
+        }
+        DecimalField {
+          width: parent.width
+          value: root.hostWidget.thresholdAmount
+          suffix: root.hostWidget.thresholdUnit
+          foreground: root.barForeground
+          onModified: function(value) {
+            root.hostWidget.configure("thresholdKB", value * Model.thresholdScale(root.hostWidget.thresholdUnit) / 1000)
+          }
+        }
+      }
+
+      PanelSectionHeader { text: "UPDATE INTERVAL"; foreground: root.barForeground }
+      DecimalField {
+        width: parent.width
+        value: root.hostWidget.refreshSeconds
+        minimum: 0.25
+        maximum: 60
+        suffix: "seconds"
         foreground: root.barForeground
-        onModified: function(value) { root.hostWidget.configure("thresholdKB", value) }
+        onModified: function(value) { root.hostWidget.configure("refreshSeconds", value) }
       }
 
       Text {
         width: parent.width
-        text: "Threshold uses KB/s in either unit mode.\nSettings save automatically. Tab moves between controls."
+        text: "Updates every 0.25–60 seconds.\nSettings save automatically. Tab moves between controls."
         color: root.barForeground
         opacity: 0.55
         font.family: root.themeFont.family

@@ -57,3 +57,27 @@ test('threshold follows the selected view and is strictly greater than the limit
   assert.equal(model.aboveThreshold({ down: 0, up: 0 }, 'both', 0), false);
   assert.equal(model.aboveThreshold({ down: 1, up: 0 }, 'both', 0), true);
 });
+
+test('threshold units represent the same speed without changing the visibility rule', () => {
+  for (const [amount, unit] of [[1000, 'KB/s'], [1, 'MB/s'], [8000, 'Kbps'], [8, 'Mbps']]) {
+    const thresholdKB = amount * model.thresholdScale(unit) / 1000;
+    assert.equal(thresholdKB, 1000);
+    assert.equal(model.aboveThreshold({ down: 1000000, up: 0 }, 'download', thresholdKB), false);
+    assert.equal(model.aboveThreshold({ down: 1000001, up: 0 }, 'download', thresholdKB), true);
+  }
+  assert.equal(0.5 * model.thresholdScale('Mbps'), 62500);
+});
+
+test('refresh intervals use safe bounds and preserve rate accuracy at slower cadences', () => {
+  assert.equal(model.intervalSeconds(undefined), 1);
+  assert.equal(model.intervalSeconds('invalid'), 1);
+  assert.equal(model.intervalSeconds(0), 0.25);
+  assert.equal(model.intervalSeconds(100), 60);
+  assert.equal(model.intervalSeconds(1.5), 1.5);
+  const previous = { device: 'wlan0', rx: 0, tx: 0, time: 10 };
+  for (const interval of [0.25, 1, 10, 60]) {
+    const current = { ...previous, rx: 2000 * interval, tx: 4000 * interval, time: 10 + interval };
+    assert.deepEqual(plain(model.rates(previous, current, interval)), { down: 2000, up: 4000 });
+    assert.deepEqual(plain(model.rates(previous, { ...current, time: 10 + interval * 3 + 5 }, interval)), { down: 0, up: 0 });
+  }
+});

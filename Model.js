@@ -17,13 +17,23 @@ function parseSample(raw) {
   return null
 }
 
-function rates(previous, current) {
+function rates(previous, current, refreshSeconds) {
   var idle = { down: 0, up: 0 }
   if (!previous || !current || previous.device !== current.device) return idle
   var seconds = current.time - previous.time
   // Rebaseline after reconnect, counter reset, suspend, or a stalled reader.
-  if (seconds <= 0 || seconds > 5 || current.rx < previous.rx || current.tx < previous.tx) return idle
+  if (seconds <= 0 || seconds > Math.max(5, intervalSeconds(refreshSeconds) * 3)
+      || current.rx < previous.rx || current.tx < previous.tx) return idle
   return { down: (current.rx - previous.rx) / seconds, up: (current.tx - previous.tx) / seconds }
+}
+
+function intervalSeconds(value) {
+  var seconds = Number(value)
+  return isFinite(seconds) ? Math.max(0.25, Math.min(60, seconds)) : 1
+}
+
+function thresholdScale(unit) {
+  return ({ "KB/s": 1000, "MB/s": 1000000, "Kbps": 125, "Mbps": 125000 })[unit] || 1000
 }
 
 function formatRate(bytes, unit) {

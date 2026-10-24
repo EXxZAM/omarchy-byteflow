@@ -12,6 +12,9 @@ BarWidget {
   readonly property string unit: setting("unit", "bytes") === "bits" ? "bits" : "bytes"
   readonly property bool thresholdEnabled: setting("thresholdEnabled", false) === true
   readonly property real thresholdKB: Math.max(0, Number(setting("thresholdKB", 10)) || 0)
+  readonly property string thresholdUnit: ["KB/s", "MB/s", "Kbps", "Mbps"].indexOf(setting("thresholdUnit", "KB/s")) >= 0 ? setting("thresholdUnit", "KB/s") : "KB/s"
+  readonly property real thresholdAmount: thresholdKB * 1000 / Model.thresholdScale(thresholdUnit)
+  readonly property real refreshSeconds: Model.intervalSeconds(setting("refreshSeconds", 1))
   property var previous: null
   property var speed: ({ down: 0, up: 0 })
   property string device: ""
@@ -35,7 +38,7 @@ BarWidget {
 
   function consume(raw) {
     var current = Model.parseSample(raw)
-    speed = Model.rates(previous, current)
+    speed = Model.rates(previous, current, refreshSeconds)
     previous = current
     device = current ? current.device : ""
   }
@@ -43,6 +46,10 @@ BarWidget {
   visible: showing
   implicitWidth: showing ? button.implicitWidth : 0
   implicitHeight: showing ? button.implicitHeight : 0
+  onRefreshSecondsChanged: {
+    previous = null
+    speed = { down: 0, up: 0 }
+  }
 
   Process {
     id: sampler
@@ -57,7 +64,7 @@ BarWidget {
   }
 
   Timer {
-    interval: 1000
+    interval: Math.round(root.refreshSeconds * 1000)
     running: true
     repeat: true
     triggeredOnStart: true

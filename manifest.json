@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.exxzam.byteflow",
   "name": "ByteFlow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Mahdi Olamaei",
   "license": "MIT",
   "description": "Compact live network speeds with configurable views and smart visibility.",
