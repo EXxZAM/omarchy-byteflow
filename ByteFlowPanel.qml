@@ -10,6 +10,7 @@ Panel {
   required property Item anchorItem
   required property var hostWidget
   readonly property var themeFont: Style.font
+  onOpenedChanged: if (!opened) content.forceActiveFocus()
 
   KeyboardPanel {
     id: popup
@@ -27,6 +28,11 @@ Panel {
       spacing: Style.space(14)
       focus: true
       Keys.onEscapePressed: root.close()
+
+      EditCommitHandler {
+        editors: [thresholdField.field, intervalField.field]
+        margin: popup.padding
+      }
 
       PanelHero {
         title: "ByteFlow"
@@ -84,6 +90,7 @@ Panel {
           onChanged: function(value) { root.hostWidget.configure("thresholdUnit", value) }
         }
         DecimalField {
+          id: thresholdField
           width: parent.width
           value: root.hostWidget.thresholdAmount
           suffix: root.hostWidget.thresholdUnit
@@ -96,6 +103,7 @@ Panel {
 
       PanelSectionHeader { text: "UPDATE INTERVAL"; foreground: root.barForeground }
       DecimalField {
+        id: intervalField
         width: parent.width
         value: root.hostWidget.refreshSeconds
         minimum: 0.25

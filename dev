@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
+
+plugin_id=$(jq -r .id manifest.json)
+installed="${XDG_CONFIG_HOME:-$HOME/.config}/omarchy/plugins/$plugin_id"
+backup="${XDG_STATE_HOME:-$HOME/.local/state}/byteflow/preview"
+
+check() {
+  node tests/model.test.cjs
+  QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME= QT_QUICK_CONTROLS_STYLE=Basic \
+    /usr/lib/qt6/bin/qmltestrunner -input tests/ui
+  local imports
+  imports=$(mktemp -d)
+  ln -s "${OMARCHY_PATH:-/usr/share/omarchy}/shell" "$imports/qs"
+  local status=0
+  /usr/lib/qt6/bin/qmllint --max-warnings 0 -I "$imports" ./*.qml || status=$?
+  rm "$imports/qs"
+  rmdir "$imports"
+  (( status == 0 )) || return "$status"
+  omarchy plugin validate .
+}
+
+case "${1:-check}" in
+  check) check ;;
+  preview)
+    check
+    [[ -f $installed/manifest.json ]] || { echo "Install ByteFlow before previewing." >&2; exit 1; }
+    [[ $(jq -r .id "$installed/manifest.json") == "$plugin_id" ]] || exit 1
+    if [[ ! -d $backup ]]; then
+      mkdir -p "$backup"
+      tar --exclude=.git -C "$installed" -cf "$backup/original.tar" .
+      printf '%s\n' "$installed" > "$backup/target"
+    fi
+    [[ $(cat "$backup/target") == "$installed" ]] || { echo "Restore the previous preview first." >&2; exit 1; }
+    files=( *.qml *.js manifest.json sample.sh LICENSE )
+    printf '%s\n' "${files[@]}" >> "$backup/preview-files"
+    cp -- "${files[@]}" "$installed/"
+    echo "Preview installed from this working directory. Restore with: ./dev restore"
+    omarchy restart shell
+    ;;
+  restore)
+    [[ -f $backup/original.tar ]] || { echo "No local preview to restore." >&2; exit 1; }
+    [[ $(cat "$backup/target") == "$installed" ]] || { echo "Preview belongs to a different installation." >&2; exit 1; }
+    while IFS= read -r file; do
+      [[ $file != */* && $file != .* ]] || exit 1
+      rm -f -- "$installed/$file"
+    done < <(sort -u "$backup/preview-files")
+    tar -C "$installed" -xf "$backup/original.tar"
+    rm -- "$backup/original.tar" "$backup/target" "$backup/preview-files"
+    rmdir "$backup"
+    echo "Restored the installation from before the first preview."
+    omarchy restart shell
+    ;;
+  *) echo "Usage: ./dev [check|preview|restore]" >&2; exit 1 ;;
+esac

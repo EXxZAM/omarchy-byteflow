@@ -10,11 +10,13 @@ Row {
   property real maximum: 1000000000000
   property string suffix: ""
   property color foreground: Commons.Color.foreground
+  property alias field: editor
   readonly property var themeFont: Style.font
   signal modified(real value)
   spacing: Style.space(10)
 
   TextField {
+    id: editor
     width: parent.width - unitLabel.implicitWidth - parent.spacing
     text: Number(root.value.toFixed(6)).toString()
     foreground: root.foreground

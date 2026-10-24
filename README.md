@@ -32,7 +32,8 @@ Choose the right bar section when prompted.
 ## Usage
 
 Click ByteFlow to open its settings. Use Tab to navigate, arrow keys to select
-options, Enter to apply a choice or numeric value, and Escape to close.
+options, Enter to apply a choice, and Escape to close. Numeric edits save when
+you press Enter, click elsewhere in the panel, or close the panel.
 
 | Setting | Default | Options |
 | --- | --- | --- |
