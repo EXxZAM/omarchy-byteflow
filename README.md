@@ -27,13 +27,9 @@ and `cat`, all included with Omarchy. No additional service or privileges needed
 omarchy plugin add https://github.com/EXxZAM/omarchy-byteflow.git --enable
 ```
 
-Choose the right bar section when prompted.
-
 ## Usage
 
-Click ByteFlow to open its settings. Use Tab to navigate, arrow keys to select
-options, Enter to apply a choice, and Escape to close. Numeric edits save when
-you press Enter, click elsewhere in the panel, or close the panel.
+Click ByteFlow to open its settings.
 
 | Setting | Default | Options |
 | --- | --- | --- |
@@ -49,10 +45,6 @@ the threshold, a subtle `⇅` icon remains visible; click it to open settings.
 Switching the threshold unit converts the value while preserving the same speed limit.
 Threshold units and display units are independent. Units use decimal scaling:
 1 MB/s = 1,000 KB/s = 8 Mbps.
-
-The panel subtitle identifies the network interface being measured. ByteFlow
-measures the interface selected by the current internet route, rather than
-adding together all interfaces. With no active route, speeds show zero.
 
 ## Update
 
