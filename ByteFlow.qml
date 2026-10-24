@@ -22,8 +22,8 @@ BarWidget {
   readonly property var themeFont: Style.font
   readonly property bool opened: panel.opened
   readonly property bool popoutSwitchClosing: panel.popoutSwitchClosing
-  readonly property bool showing: opened || !thresholdEnabled || Model.aboveThreshold(speed, view, thresholdKB)
-  readonly property real openPanelIndicatorWidth: metrics.implicitWidth
+  readonly property bool showRates: !thresholdEnabled || Model.aboveThreshold(speed, view, thresholdKB)
+  readonly property real openPanelIndicatorWidth: showRates ? metrics.implicitWidth : button.opticalSize
 
   function open() { panel.open() }
   function close() { panel.close() }
@@ -43,9 +43,8 @@ BarWidget {
     device = current ? current.device : ""
   }
 
-  visible: showing
-  implicitWidth: showing ? button.implicitWidth : 0
-  implicitHeight: showing ? button.implicitHeight : 0
+  implicitWidth: button.implicitWidth
+  implicitHeight: button.implicitHeight
   onRefreshSecondsChanged: {
     previous = null
     speed = { down: 0, up: 0 }
@@ -78,14 +77,15 @@ BarWidget {
     anchorItem: button
   }
 
-  WidgetButton {
+  BarIconButton {
     id: button
     anchors.fill: parent
     bar: root.bar
-    labelVisible: false
+    text: root.showRates ? "" : "⇅"
     hasVisualContent: true
-    fixedWidth: root.vertical ? root.barSize : metrics.implicitWidth + Style.space(16)
-    fixedHeight: root.vertical ? metrics.implicitHeight + Style.space(12) : root.barSize
+    dimmed: !root.showRates && !root.opened
+    fixedWidth: root.vertical ? root.barSize : (root.showRates ? metrics.implicitWidth + Style.space(16) : slotSize)
+    fixedHeight: root.vertical ? (root.showRates ? metrics.implicitHeight + Style.space(12) : slotSize) : root.barSize
     tooltipText: "ByteFlow · " + (root.device || "No active route") + "\nDownload  "
       + Model.formatRate(root.speed.down, root.unit) + "\nUpload    "
       + Model.formatRate(root.speed.up, root.unit) + "\nClick to configure"
@@ -93,6 +93,7 @@ BarWidget {
 
     Item {
       id: metrics
+      visible: root.showRates
       anchors.centerIn: parent
       readonly property real spacing: Style.space(root.vertical ? 4 : 10)
       implicitWidth: root.vertical ? Math.max(down.implicitWidth, up.implicitWidth)

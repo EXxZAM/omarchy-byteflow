@@ -10,7 +10,7 @@ A compact, theme-aware network speed widget for the Omarchy Quattro bar.
 
 - Show download and upload together, or either direction individually.
 - Display speeds in bytes/s (KB/s, MB/s) or bits/s (Kbps, Mbps).
-- Hide below a configurable threshold, with KB/s, MB/s, Kbps and Mbps options.
+- Collapse to a small clickable icon below a threshold in KB/s, MB/s, Kbps or Mbps.
 - Choose an update interval from 0.25 to 60 seconds; defaults to 1 second.
 - Configure everything from the bar widget, with settings saved automatically.
 - Follows the active network route, including VPN interfaces.
@@ -38,26 +38,20 @@ options, Enter to apply a choice or numeric value, and Escape to close.
 | --- | --- | --- |
 | View | Both | Both, Download, Upload |
 | Display units | KB/s · MB/s | Bytes/s or bits/s, scaled automatically |
-| Hide below threshold | Off | Always visible, or show above the minimum speed |
+| Collapse below threshold | Off | Always show speeds, or show an icon below the minimum speed |
 | Minimum speed | 10 KB/s | Decimal value in KB/s, MB/s, Kbps or Mbps |
 | Update interval | 1 second | 0.25–60 seconds |
 
 In **Both** view, either direction exceeding the threshold reveals the whole
-widget. In a single-direction view, only that direction counts. Switching the
-threshold unit converts the value while preserving the same speed limit.
+widget's speeds. In a single-direction view, only that direction counts. Below
+the threshold, a subtle `⇅` icon remains visible; click it to open settings.
+Switching the threshold unit converts the value while preserving the same speed limit.
 Threshold units and display units are independent. Units use decimal scaling:
 1 MB/s = 1,000 KB/s = 8 Mbps.
 
 The panel subtitle identifies the network interface being measured. ByteFlow
 measures the interface selected by the current internet route, rather than
 adding together all interfaces. With no active route, speeds show zero.
-
-The widget stays visible while settings are open. To reopen settings when it
-is hidden:
-
-```sh
-omarchy-shell shell summon io.github.exxzam.byteflow '{}'
-```
 
 ## Update
 

@@ -63,8 +63,8 @@ Panel {
 
       Toggle {
         width: parent.width
-        label: "Hide below threshold"
-        description: "Show when a displayed direction exceeds the limit."
+        label: "Collapse below threshold"
+        description: "Keep a small settings icon when speeds are below the limit."
         checked: root.hostWidget.thresholdEnabled
         foreground: root.barForeground
         onClicked: root.hostWidget.configure("thresholdEnabled", !checked)
