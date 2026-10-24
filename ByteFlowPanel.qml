@@ -70,7 +70,6 @@ Panel {
       Toggle {
         width: parent.width
         label: "Collapse below threshold"
-        description: "Keep a small settings icon when speeds are below the limit."
         checked: root.hostWidget.thresholdEnabled
         foreground: root.barForeground
         onClicked: root.hostWidget.configure("thresholdEnabled", !checked)
@@ -115,7 +114,7 @@ Panel {
 
       Text {
         width: parent.width
-        text: "Updates every 0.25–60 seconds.\nSettings save automatically. Tab moves between controls."
+        text: "Settings save automatically."
         color: root.barForeground
         opacity: 0.55
         font.family: root.themeFont.family
